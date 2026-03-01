@@ -698,8 +698,9 @@
                     elements.photoUploadPlaceholder.style.display = 'none';
                     elements.photoUploadArea.classList.add('has-image');
                     elements.photoButtons.style.display = 'flex';
+                    elements.step1Next.disabled = false;
                     
-                    showToast('✅ 照片上传成功！');
+                    showToast('✅ 照片上传成功！点击下一步继续');
                 };
                 reader.readAsDataURL(file);
             });
