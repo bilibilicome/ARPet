@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MindAR目标生成器</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .generator-container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-y: auto;
+        }
+        .generator-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .generator-header h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .generator-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+        }
+        .generator-content {
+            width: 100%;
+            max-width: 500px;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        .step-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .step-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .btn-action {
+            width: 100%;
+            padding: 18px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+        .preview-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff3cd;
+            border-radius: 10px;
+            display: none;
+        }
+        .preview-section.active {
+            display: block;
+        }
+        .preview-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .preview-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: white;
+        }
+        .back-link {
+            margin-top: 20px;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .back-link:hover {
+            text-decoration: underline;
+        }
+        .important-note {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .important-note p {
+            margin: 0;
+            color: #333;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .compiler-link {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .compiler-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="generator-container">
+        <div class="generator-header">
+            <h1>🧠 生成 MindAR 目标文件</h1>
+            <p>使用官方编译器生成最可靠的目标文件</p>
+        </div>
+
+        <div class="generator-content">
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    确认您的图片
+                </div>
+                <div class="step-content">
+                    <p>这是您刚才上传的图片（AR扫描目标）：</p>
+                    <div class="preview-section active" id="previewSection">
+                        <img class="preview-image" id="previewImage" src="" alt="您的图片">
+                    </div>
+                    <button class="btn-action btn-secondary" id="saveBtn" style="margin-top: 10px;">💾 保存此图片</button>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    使用官方编译器
+                </div>
+                <div class="step-content">
+                    <p>点击下方按钮，跳转到 MindAR 官方编译器：</p>
+                    <button class="btn-action btn-primary" id="goCompilerBtn">🚀 打开官方编译器</button>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    在编译器中操作
+                </div>
+                <div class="step-content">
+                    <ol style="margin: 0; padding-left: 20px; color: #666; font-size: 14px; line-height: 1.8;">
+                        <li>在官方编译器中上传刚才保存的图片</li>
+                        <li>点击 "Compile" 生成 .mind 文件</li>
+                        <li>下载生成的 targets.mind 文件</li>
+                        <li>将文件保存到项目的 <strong>assets/</strong> 目录</li>
+                        <li>重命名为 <strong>user-target.mind</strong></li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    完成！开始AR体验
+                </div>
+                <div class="step-content">
+                    <p>下载 .mind 文件后，到AR页直接上传：</p>
+                    <button class="btn-action btn-primary" id="goARBtn" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🎮 终极版AR（支持上传.mind）</button>
+                </div>
+            </div>
+
+            <div class="important-note">
+                <p><strong>💡 提示：</strong> 官方编译器是最可靠的方式。如果您想快速测试，可以先使用 <a href="ar-mindar-test.html" class="compiler-link">官方示例</a>（无需生成.mind文件）。</p>
+            </div>
+
+            <button class="btn-action btn-secondary" id="backBtn" style="margin-top: 15px;">← 返回首页</button>
+        </div>
+
+        <a href="index.html" class="back-link">← 返回首页</a>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const elements = {
+            previewImage: document.getElementById('previewImage'),
+            previewSection: document.getElementById('previewSection'),
+            saveBtn: document.getElementById('saveBtn'),
+            goCompilerBtn: document.getElementById('goCompilerBtn'),
+            goARBtn: document.getElementById('goARBtn'),
+            backBtn: document.getElementById('backBtn')
+        };
+
+        let originalImageUrl = null;
+
+        function saveImage(imgSrc, filename) {
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function init() {
+            originalImageUrl = localStorage.getItem('originalImageUrl');
+            
+            if (originalImageUrl) {
+                elements.previewImage.src = originalImageUrl;
+                elements.previewSection.classList.add('active');
+            }
+
+            elements.saveBtn.addEventListener('click', () => {
+                if (originalImageUrl) {
+                    saveImage(originalImageUrl, 'ar-target-image.jpg');
+                }
+            });
+
+            elements.goCompilerBtn.addEventListener('click', () => {
+                window.open('https://hiukim.github.io/mind-ar-js-doc/tools/compile/', '_blank');
+            });
+
+            elements.goARBtn.addEventListener('click', () => {
+                window.location.href = 'ar-ultimate-final.html';
+            });
+
+            elements.backBtn.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

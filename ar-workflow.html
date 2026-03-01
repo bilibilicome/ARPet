@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>AR工作流 - 完整指南</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .workflow-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .step-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .step-number {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 30px;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .step-content {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .btn-action {
+            width: 100%;
+            padding: 15px;
+            margin-top: 10px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .btn-action:active {
+            transform: scale(0.98);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-done { background: #d4edda; color: #155724; }
+        .preview-small {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 10px;
+            margin: 10px 0;
+            border: 2px dashed #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 AR工作流</h1>
+            <p>完成以下步骤，体验完整的AR效果</p>
+        </div>
+
+        <div class="workflow-container">
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">1</span>
+                    上传并生成
+                    <span class="status-badge status-done" id="step1-status">✓ 已完成</span>
+                </div>
+                <div class="step-content">
+                    <p>您的图片已上传，卡通形象已生成！</p>
+                    <div style="display: flex; gap: 10px;">
+                        <div>
+                            <div style="font-size: 12px; color: #999;">原图（用于扫描）</div>
+                            <img class="preview-small" id="preview-original" src="">
+                        </div>
+                        <div>
+                            <div style="font-size: 12px; color: #999;">卡通（AR显示）</div>
+                            <img class="preview-small" id="preview-cartoon" src="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">2</span>
+                    保存原图
+                    <span class="status-badge" id="step2-status">待完成</span>
+                </div>
+                <div class="step-content">
+                    <p>点击保存原图，稍后需要用摄像头扫描这张图片</p>
+                    <button class="btn-action btn-primary" id="saveOriginal">💾 保存原图</button>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">3</span>
+                    生成目标文件
+                    <span class="status-badge" id="step3-status">待完成</span>
+                </div>
+                <div class="step-content">
+                    <p>MindAR需要特殊的目标文件才能识别您的图片</p>
+                    <button class="btn-action btn-primary" id="generateTarget">🧠 前往目标生成器</button>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">4</span>
+                    准备扫描
+                </div>
+                <div class="step-content">
+                    <p>用另一台设备显示保存的原图，或打印出来</p>
+                </div>
+            </div>
+
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-number">5</span>
+                    开始AR体验
+                </div>
+                <div class="step-content">
+                    <p>一切就绪！点击按钮开始AR扫描</p>
+                    <button class="btn-action btn-primary" id="startAR">🎮 开始AR体验</button>
+                    <button class="btn-action btn-secondary" id="backHome" style="margin-top: 10px;">← 返回首页</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const elements = {
+            previewOriginal: document.getElementById('preview-original'),
+            previewCartoon: document.getElementById('preview-cartoon'),
+            step2Status: document.getElementById('step2-status'),
+            step3Status: document.getElementById('step3-status'),
+            saveOriginal: document.getElementById('saveOriginal'),
+            generateTarget: document.getElementById('generateTarget'),
+            startAR: document.getElementById('startAR'),
+            backHome: document.getElementById('backHome'),
+            toast: document.getElementById('toast')
+        };
+
+        function showToast(message) {
+            elements.toast.textContent = message;
+            elements.toast.classList.add('active');
+            setTimeout(() => {
+                elements.toast.classList.remove('active');
+            }, 2000);
+        }
+
+        function saveImage(imgSrc, filename) {
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('图片已保存！');
+        }
+
+        function markStepDone(stepEl) {
+            stepEl.textContent = '✓ 已完成';
+            stepEl.className = 'status-badge status-done';
+        }
+
+        function init() {
+            const originalUrl = sessionStorage.getItem('originalImageUrl');
+            const cartoonUrl = sessionStorage.getItem('cartoonUrl');
+
+            if (originalUrl) {
+                elements.previewOriginal.src = originalUrl;
+            }
+            if (cartoonUrl) {
+                elements.previewCartoon.src = cartoonUrl;
+            }
+
+            elements.saveOriginal.addEventListener('click', () => {
+                if (originalUrl) {
+                    saveImage(originalUrl, 'original-target.jpg');
+                    markStepDone(elements.step2Status);
+                }
+            });
+
+            elements.generateTarget.addEventListener('click', () => {
+                markStepDone(elements.step3Status);
+                window.location.href = 'target-generator.html';
+            });
+
+            elements.startAR.addEventListener('click', () => {
+                window.location.href = 'ar-mindar.html';
+            });
+
+            elements.backHome.addEventListener('click', () => {
+                window.location.href = 'index.html';
+            });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

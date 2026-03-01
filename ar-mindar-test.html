@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>MindAR Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+        body { margin: 0; }
+        .header {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        .btn {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .status {
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .hint {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 15px 25px;
+            border-radius: 25px;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        .target-preview {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 1000;
+            max-width: 90%;
+        }
+        .target-preview img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+            border: 2px dashed #667eea;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .target-preview p {
+            margin: 0;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="btn" onclick="window.location.href='index.html'">← 返回</button>
+        <div class="status" id="status">等待...</div>
+    </div>
+
+    <a-scene 
+        mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true;"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
+        
+        <a-assets>
+            <img id="bear" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/ribbon.png">
+        </a-assets>
+
+        <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+        <a-entity mindar-image-target="targetIndex: 0">
+            <a-image src="#bear" width="1.5" height="1.5" position="0 0 0" rotation="-90 0 0"></a-image>
+        </a-entity>
+    </a-scene>
+
+    <div class="hint">将摄像头对准目标图片</div>
+
+    <div class="target-preview">
+        <img src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" alt="目标">
+        <p>🎯 请用摄像头对准这张图片</p>
+        <p style="margin-top:5px; font-size:10px; color:#666;">或下载: <a href="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" target="_blank">示例卡片</a></p>
+    </div>
+
+    <script>
+        const scene = document.querySelector('a-scene');
+        const statusEl = document.getElementById('status');
+        
+        scene.addEventListener('targetFound', () => {
+            statusEl.textContent = '✅ 识别成功！';
+            document.querySelector('.hint').style.display = 'none';
+        });
+        
+        scene.addEventListener('targetLost', () => {
+            statusEl.textContent = '🔍 扫描中...';
+            document.querySelector('.hint').style.display = 'block';
+        });
+        
+        scene.addEventListener('loaded', () => {
+            statusEl.textContent = '🔍 扫描中...';
+            console.log('MindAR loaded');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>🐾 AR宠物卡通</title>
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+        }
+        
+        .header h1 {
+            color: white;
+            font-size: 22px;
+            font-weight: bold;
+            margin: 0 0 6px 0;
+        }
+        
+        .header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 13px;
+            margin: 0;
+        }
+        
+        .progress-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-shrink: 0;
+            gap: 20px;
+        }
+        
+        .progress-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .progress-circle {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+        
+        .progress-circle.active {
+            background: white;
+            color: #667eea;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            transform: scale(1.1);
+        }
+        
+        .progress-circle.completed {
+            background: #28a745;
+            color: white;
+        }
+        
+        .progress-label {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .progress-label.active {
+            color: white;
+            font-weight: bold;
+        }
+        
+        .progress-connector {
+            width: 40px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.4);
+            flex-shrink: 0;
+        }
+        
+        .step-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        }
+        
+        .step-card.active {
+            display: flex;
+        }
+        
+        .step-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+        
+        .step-title .emoji {
+            font-size: 24px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #667eea;
+            border-radius: 12px;
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        
+        .upload-area:hover {
+            background: #f5f5ff;
+            border-color: #764ba2;
+        }
+        
+        .upload-area.has-image {
+            border-style: solid;
+            padding: 12px;
+        }
+        
+        .upload-icon {
+            font-size: 40px;
+            margin-bottom: 8px;
+        }
+        
+        .upload-text {
+            color: #667eea;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .upload-hint {
+            color: #999;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        
+        .preview-image {
+            width: 100%;
+            max-height: 220px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+        
+        .button-row {
+            display: flex;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+        
+        .button-row.bottom {
+            margin-top: auto;
+            padding-top: 16px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 13px 16px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+        
+        .btn-ar {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 17px;
+            padding: 16px;
+        }
+        
+        .btn-ar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(240, 147, 251, 0.3);
+        }
+        
+        .step-guide {
+            background: linear-gradient(135deg, #667eea10 0%, #764ba210 100%);
+            border-radius: 12px;
+            padding: 14px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+        
+        .step-guide-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        
+        .step-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .step-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .step-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 2000;
+            display: none;
+        }
+        
+        .toast.active {
+            display: block;
+            animation: fadeInOut 2s ease;
+        }
+        
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0; }
+            20%, 80% { opacity: 1; }
+        }
+        
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .loading.active {
+            display: flex;
+        }
+        
+        .loading-content {
+            background: white;
+            padding: 28px;
+            border-radius: 16px;
+            text-align: center;
+        }
+        
+        .spinner {
+            width: 44px;
+            height: 44px;
+            border: 4px solid #f0f0f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 12px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            color: #333;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐾 AR宠物卡通</h1>
+            <p>上传照片，一键生成专属AR卡通形象</p>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-item">
+                <div class="progress-circle active" id="progress1">1</div>
+                <div class="progress-label active" id="label1">上传照片</div>
+            </div>
+            <div class="progress-connector" id="connector1"></div>
+            <div class="progress-item">
+                <div class="progress-circle" id="progress2">2</div>
+                <div class="progress-label" id="label2">获取标记</div>
+            </div>
+            <div class="progress-connector" id="connector2"></div>
+            <div class="progress-item">
+                <div class="progress-circle" id="progress3">3</div>
+                <div class="progress-label" id="label3">开始AR</div>
+            </div>
+        </div>
+
+        <!-- 步骤1：上传宠物照片 -->
+        <div class="step-card active" id="step1">
+            <div class="step-title">
+                <span class="emoji">📷</span>
+                第一步：上传宠物照片
+            </div>
+            
+            <div class="upload-area" id="photoUploadArea">
+                <div id="photoUploadPlaceholder">
+                    <div class="upload-icon">📸</div>
+                    <div class="upload-text">点击上传或拖拽照片</div>
+                    <div class="upload-hint">支持 JPG、PNG 格式</div>
+                </div>
+                <img class="preview-image" id="photoPreview" style="display: none;" alt="预览">
+            </div>
+            <input type="file" id="photoInput" accept="image/*" style="display: none;">
+            
+            <div class="button-row" id="photoButtons" style="display: none;">
+                <button class="btn btn-secondary" id="savePhotoBtn">💾 保存原图</button>
+                <button class="btn btn-primary" id="generateCartoonBtn">✨ 生成卡通</button>
+                <button class="btn btn-secondary" id="resetPhotoBtn">🔄 重置</button>
+            </div>
+
+            <div class="button-row bottom">
+                <button class="btn btn-primary" id="step1Next" disabled>下一步 →</button>
+            </div>
+        </div>
+
+        <!-- 步骤2：获取Hiro标记 -->
+        <div class="step-card" id="step2">
+            <div class="step-title">
+                <span class="emoji">📄</span>
+                第二步：获取AR标记
+            </div>
+            
+            <div class="step-guide">
+                <div class="step-guide-title">📋 使用步骤：</div>
+                <ul class="step-list">
+                    <li class="step-item">
+                        <span class="step-number">1</span>
+                        <div>用电脑浏览器点击下方链接打开Hiro标记</div>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-number">2</span>
+                        <div>或搜索"AR.js Hiro marker"找到示例图片</div>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-number">3</span>
+                        <div>用另一台设备显示标记，然后用摄像头对准</div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div style="text-align: center; margin-bottom: 16px;">
+                <a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg" target="_blank" class="btn btn-primary" style="display: inline-block; text-decoration: none; margin-bottom: 10px;">
+                    🔗 打开Hiro标记图片
+                </a>
+                <p style="font-size: 13px; color: #999; margin: 0;">在电脑浏览器中打开此链接</p>
+            </div>
+
+            <div class="button-row bottom">
+                <button class="btn btn-secondary" id="step2Prev">← 上一步</button>
+                <button class="btn btn-primary" id="step2Next">下一步 →</button>
+            </div>
+        </div>
+
+        <!-- 步骤3：开始AR体验 -->
+        <div class="step-card" id="step3">
+            <div class="step-title">
+                <span class="emoji">🎮</span>
+                第三步：开始AR体验
+            </div>
+            
+            <div class="step-guide">
+                <div class="step-guide-title">✅ 准备好后，点击下方按钮：</div>
+                <ul class="step-list">
+                    <li class="step-item">
+                        <span class="step-number">1</span>
+                        <div>确保你已经在另一台设备上显示Hiro标记</div>
+                    </li>
+                    <li class="step-item">
+                        <span class="step-number">2</span>
+                        <div>用摄像头对准标记，你的卡通形象就会出现！</div>
+                    </li>
+                </ul>
+            </div>
+            
+            <div style="background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                <div style="font-weight: bold; color: #856404; margin-bottom: 8px;">⚠️ 重要提示（手机用户）：</div>
+                <div style="font-size: 13px; color: #856404; line-height: 1.6;">
+                    手机浏览器需要 HTTPS 环境才能访问摄像头。本地服务器（http://）在手机上无法使用。<br><br>
+                    <strong>解决方案：</strong><br>
+                    1. 在电脑上直接体验（localhost 可用）<br>
+                    2. 或将项目部署到支持 HTTPS 的服务器
+                </div>
+            </div>
+            
+            <button class="btn btn-ar" id="startARBtn">
+                🎮 开始AR体验
+            </button>
+            
+            <div style="text-align: center; margin-top: 16px;">
+                <p style="font-size: 13px; color: #999; margin-bottom: 8px;">想先测试一下？</p>
+                <a href="ar-simple.html" class="btn btn-secondary" style="display: inline-block; text-decoration: none; font-size: 13px;">
+                    🧪 简单测试页面
+                </a>
+            </div>
+
+            <div class="button-row bottom">
+                <button class="btn btn-secondary" id="step3Prev">← 上一步</button>
+                <button class="btn btn-secondary" id="step3Restart">🔄 重新开始</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="loading" id="loading">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <div class="loading-text" id="loadingText">处理中...</div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        let currentStep = 1;
+        const totalSteps = 3;
+
+        let originalImageUrl = null;
+        let cartoonImageUrl = null;
+
+        const elements = {
+            step1: document.getElementById('step1'),
+            step2: document.getElementById('step2'),
+            step3: document.getElementById('step3'),
+            progress1: document.getElementById('progress1'),
+            progress2: document.getElementById('progress2'),
+            progress3: document.getElementById('progress3'),
+            label1: document.getElementById('label1'),
+            label2: document.getElementById('label2'),
+            label3: document.getElementById('label3'),
+            step1Next: document.getElementById('step1Next'),
+            step2Prev: document.getElementById('step2Prev'),
+            step2Next: document.getElementById('step2Next'),
+            step3Prev: document.getElementById('step3Prev'),
+            step3Restart: document.getElementById('step3Restart'),
+            photoUploadArea: document.getElementById('photoUploadArea'),
+            photoInput: document.getElementById('photoInput'),
+            photoPreview: document.getElementById('photoPreview'),
+            photoUploadPlaceholder: document.getElementById('photoUploadPlaceholder'),
+            photoButtons: document.getElementById('photoButtons'),
+            savePhotoBtn: document.getElementById('savePhotoBtn'),
+            generateCartoonBtn: document.getElementById('generateCartoonBtn'),
+            resetPhotoBtn: document.getElementById('resetPhotoBtn'),
+            startARBtn: document.getElementById('startARBtn'),
+            loading: document.getElementById('loading'),
+            loadingText: document.getElementById('loadingText'),
+            toast: document.getElementById('toast')
+        };
+
+        function showToast(message) {
+            elements.toast.textContent = message;
+            elements.toast.classList.add('active');
+            setTimeout(() => {
+                elements.toast.classList.remove('active');
+            }, 2000);
+        }
+
+        function showLoading(text = '处理中...') {
+            elements.loadingText.textContent = text;
+            elements.loading.classList.add('active');
+        }
+
+        function hideLoading() {
+            elements.loading.classList.remove('active');
+        }
+
+        function updateProgress(step) {
+            for (let i = 1; i <= totalSteps; i++) {
+                const progress = document.getElementById('progress' + i);
+                const label = document.getElementById('label' + i);
+                
+                progress.classList.remove('active', 'completed');
+                label.classList.remove('active');
+                
+                if (i < step) {
+                    progress.classList.add('completed');
+                    progress.textContent = '✓';
+                } else if (i === step) {
+                    progress.classList.add('active');
+                    progress.textContent = i;
+                    label.classList.add('active');
+                } else {
+                    progress.textContent = i;
+                }
+            }
+            
+            for (let i = 1; i < totalSteps; i++) {
+                const connector = document.getElementById('connector' + i);
+                if (connector) {
+                    if (i < step) {
+                        connector.style.background = '#28a745';
+                    } else {
+                        connector.style.background = 'rgba(255, 255, 255, 0.4)';
+                    }
+                }
+            }
+        }
+
+        function showStep(step) {
+            elements.step1.classList.remove('active');
+            elements.step2.classList.remove('active');
+            elements.step3.classList.remove('active');
+            
+            document.getElementById('step' + step).classList.add('active');
+            currentStep = step;
+            updateProgress(step);
+        }
+
+        function saveImage(imgSrc, filename) {
+            const link = document.createElement('a');
+            link.href = imgSrc;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function generateCartoon() {
+            showLoading('生成卡通形象中...');
+            
+            setTimeout(() => {
+                const canvas = document.createElement('canvas');
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+                    
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const data = imageData.data;
+                    
+                    for (let i = 0; i < data.length; i += 4) {
+                        data[i] = Math.round(data[i] / 32) * 32;
+                        data[i + 1] = Math.round(data[i + 1] / 32) * 32;
+                        data[i + 2] = Math.round(data[i + 2] / 32) * 32;
+                        data[i + 3] = 255;
+                    }
+                    
+                    ctx.putImageData(imageData, 0, 0);
+                    cartoonImageUrl = canvas.toDataURL('image/png');
+                    
+                    localStorage.setItem('cartoonUrl', cartoonImageUrl);
+                    
+                    hideLoading();
+                    showToast('🎉 卡通形象生成成功！');
+                    elements.step1Next.disabled = false;
+                };
+                img.onerror = function() {
+                    hideLoading();
+                    showToast('❌ 生成失败，请重试');
+                };
+                img.src = originalImageUrl;
+            }, 1000);
+        }
+
+        function resetAll() {
+            originalImageUrl = null;
+            cartoonImageUrl = null;
+            localStorage.removeItem('originalImageUrl');
+            localStorage.removeItem('cartoonUrl');
+            
+            elements.photoPreview.style.display = 'none';
+            elements.photoUploadPlaceholder.style.display = 'block';
+            elements.photoUploadArea.classList.remove('has-image');
+            elements.photoButtons.style.display = 'none';
+            elements.photoInput.value = '';
+            elements.step1Next.disabled = true;
+            
+            showStep(1);
+            showToast('已重置');
+        }
+
+        function init() {
+            elements.step1Next.addEventListener('click', () => showStep(2));
+            elements.step2Prev.addEventListener('click', () => showStep(1));
+            elements.step2Next.addEventListener('click', () => showStep(3));
+            elements.step3Prev.addEventListener('click', () => showStep(2));
+            elements.step3Restart.addEventListener('click', resetAll);
+
+            elements.photoUploadArea.addEventListener('click', () => {
+                elements.photoInput.click();
+            });
+
+            elements.photoInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    originalImageUrl = e.target.result;
+                    localStorage.setItem('originalImageUrl', originalImageUrl);
+                    
+                    elements.photoPreview.src = originalImageUrl;
+                    elements.photoPreview.style.display = 'block';
+                    elements.photoUploadPlaceholder.style.display = 'none';
+                    elements.photoUploadArea.classList.add('has-image');
+                    elements.photoButtons.style.display = 'flex';
+                    
+                    showToast('✅ 照片上传成功！');
+                };
+                reader.readAsDataURL(file);
+            });
+
+            elements.photoUploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                elements.photoUploadArea.style.background = '#e0e0ff';
+            });
+
+            elements.photoUploadArea.addEventListener('dragleave', () => {
+                elements.photoUploadArea.style.background = '';
+            });
+
+            elements.photoUploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                elements.photoUploadArea.style.background = '';
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    elements.photoInput.files = e.dataTransfer.files;
+                    elements.photoInput.dispatchEvent(new Event('change'));
+                }
+            });
+
+            elements.savePhotoBtn.addEventListener('click', () => {
+                if (originalImageUrl) {
+                    saveImage(originalImageUrl, 'ar-target-photo.jpg');
+                }
+            });
+
+            elements.generateCartoonBtn.addEventListener('click', generateCartoon);
+
+            elements.resetPhotoBtn.addEventListener('click', () => {
+                originalImageUrl = null;
+                cartoonImageUrl = null;
+                localStorage.removeItem('originalImageUrl');
+                localStorage.removeItem('cartoonUrl');
+                
+                elements.photoPreview.style.display = 'none';
+                elements.photoUploadPlaceholder.style.display = 'block';
+                elements.photoUploadArea.classList.remove('has-image');
+                elements.photoButtons.style.display = 'none';
+                elements.photoInput.value = '';
+                elements.step1Next.disabled = true;
+                
+                showToast('已重置');
+            });
+
+            elements.startARBtn.addEventListener('click', () => {
+                window.location.href = 'ar-arjs.html';
+            });
+
+            const savedOriginalUrl = localStorage.getItem('originalImageUrl');
+            const savedCartoonUrl = localStorage.getItem('cartoonUrl');
+            
+            if (savedOriginalUrl) {
+                originalImageUrl = savedOriginalUrl;
+                elements.photoPreview.src = savedOriginalUrl;
+                elements.photoPreview.style.display = 'block';
+                elements.photoUploadPlaceholder.style.display = 'none';
+                elements.photoUploadArea.classList.add('has-image');
+                elements.photoButtons.style.display = 'flex';
+                elements.step1Next.disabled = false;
+            }
+            
+            if (savedCartoonUrl) {
+                cartoonImageUrl = savedCartoonUrl;
+            }
+
+            updateProgress(1);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+</body>
+</html>

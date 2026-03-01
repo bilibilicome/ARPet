@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+    <style>
+      .ui-overlay {
+        position: fixed;
+        z-index: 1000;
+        pointer-events: none;
+      }
+      .ui-overlay > * {
+        pointer-events: auto;
+      }
+      .header {
+        top: 20px;
+        left: 20px;
+        right: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+      }
+      .btn {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 20px;
+        font-size: 13px;
+        cursor: pointer;
+        flex-shrink: 0;
+      }
+      .status {
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 20px;
+        font-size: 14px;
+        flex: 1;
+        text-align: center;
+      }
+      .hint {
+        bottom: 120px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 15px 30px;
+        border-radius: 25px;
+        font-size: 14px;
+      }
+      .target-info {
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(255, 255, 255, 0.95);
+        padding: 15px;
+        border-radius: 15px;
+        text-align: center;
+        max-width: 90%;
+      }
+      .target-info img {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border: 2px dashed #667eea;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+      .target-info p {
+        margin: 0;
+        font-size: 12px;
+        color: #333;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="ui-overlay header">
+      <button class="btn" id="backBtn">← 返回</button>
+      <div class="status" id="status">🔍 扫描中...</div>
+    </div>
+
+    <a-scene
+      mindar-image="imageTargetSrc: https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.mind; autoStart: true;"
+      vr-mode-ui="enabled: false"
+      device-orientation-permission-ui="enabled: false"
+    >
+      <a-assets>
+        <img id="leaf" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/leaf.png" crossorigin="anonymous" />
+      </a-assets>
+
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+      <a-entity mindar-image-target="targetIndex: 0">
+        <a-image
+          src="#leaf"
+          alpha-test="0.5"
+          width="0.552"
+          height="0.552"
+          position="0 0 0"
+        ></a-image>
+      </a-entity>
+    </a-scene>
+
+    <div class="ui-overlay hint" id="hint">将摄像头对准目标图片</div>
+
+    <div class="ui-overlay target-info" id="targetInfo">
+      <img id="targetPreviewImg" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/card.png" alt="目标图片">
+      <p id="targetInfoText">🎯 当前：官方示例</p>
+    </div>
+
+    <script>
+    (function() {
+        'use strict';
+
+        const sceneEl = document.querySelector('a-scene');
+        const elements = {
+            backBtn: document.getElementById('backBtn'),
+            status: document.getElementById('status'),
+            hint: document.getElementById('hint'),
+            targetInfo: document.getElementById('targetInfo'),
+            targetPreviewImg: document.getElementById('targetPreviewImg'),
+            targetInfoText: document.getElementById('targetInfoText')
+        };
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+
+        function init() {
+            elements.backBtn.addEventListener('click', goBack);
+
+            sceneEl.addEventListener('targetFound', () => {
+                elements.status.textContent = '✅ 识别成功！';
+                elements.hint.style.display = 'none';
+                elements.targetInfo.style.display = 'none';
+            });
+
+            sceneEl.addEventListener('targetLost', () => {
+                elements.status.textContent = '🔍 扫描中...';
+                elements.hint.style.display = 'block';
+                elements.targetInfo.style.display = 'block';
+            });
+
+            const savedCartoonUrl = localStorage.getItem('cartoonUrl');
+            const savedOriginalUrl = localStorage.getItem('originalImageUrl');
+
+            if (savedOriginalUrl) {
+                elements.targetPreviewImg.src = savedOriginalUrl;
+                elements.targetInfoText.textContent = '🎯 请用摄像头对准您保存的原图';
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+    </script>
+  </body>
+</html>
