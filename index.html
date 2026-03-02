@@ -51,20 +51,21 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 16px;
+            margin-bottom: 12px;
             flex-shrink: 0;
-            gap: 20px;
+            gap: 8px;
         }
         
         .progress-item {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 6px;
+            flex-direction: column;
         }
         
         .progress-circle {
-            width: 36px;
-            height: 36px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             color: white;
@@ -72,7 +73,7 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 14px;
             transition: all 0.3s ease;
             flex-shrink: 0;
         }
@@ -91,7 +92,7 @@
         
         .progress-label {
             color: rgba(255, 255, 255, 0.8);
-            font-size: 13px;
+            font-size: 11px;
             text-align: center;
             white-space: nowrap;
         }
@@ -102,10 +103,11 @@
         }
         
         .progress-connector {
-            width: 40px;
+            width: 30px;
             height: 2px;
             background: rgba(255, 255, 255, 0.4);
             flex-shrink: 0;
+            margin-bottom: 14px;
         }
         
         .step-card {
@@ -403,7 +405,6 @@
             <input type="file" id="photoInput" accept="image/*" style="display: none;">
             
             <div class="button-row" id="photoButtons" style="display: none;">
-                <button class="btn btn-secondary" id="savePhotoBtn">💾 保存原图</button>
                 <button class="btn btn-primary" id="generateCartoonBtn">✨ 生成卡通</button>
                 <button class="btn btn-secondary" id="resetPhotoBtn">🔄 重置</button>
             </div>
@@ -486,12 +487,7 @@
                 🎮 开始AR体验
             </button>
             
-            <div style="text-align: center; margin-top: 16px;">
-                <p style="font-size: 13px; color: #999; margin-bottom: 8px;">想先测试一下？</p>
-                <a href="ar-simple.html" class="btn btn-secondary" style="display: inline-block; text-decoration: none; font-size: 13px;">
-                    🧪 简单测试页面
-                </a>
-            </div>
+
 
             <div class="button-row bottom">
                 <button class="btn btn-secondary" id="step3Prev">← 上一步</button>
@@ -539,7 +535,6 @@
             photoPreview: document.getElementById('photoPreview'),
             photoUploadPlaceholder: document.getElementById('photoUploadPlaceholder'),
             photoButtons: document.getElementById('photoButtons'),
-            savePhotoBtn: document.getElementById('savePhotoBtn'),
             generateCartoonBtn: document.getElementById('generateCartoonBtn'),
             resetPhotoBtn: document.getElementById('resetPhotoBtn'),
             startARBtn: document.getElementById('startARBtn'),
@@ -721,12 +716,6 @@
                 if (file && file.type.startsWith('image/')) {
                     elements.photoInput.files = e.dataTransfer.files;
                     elements.photoInput.dispatchEvent(new Event('change'));
-                }
-            });
-
-            elements.savePhotoBtn.addEventListener('click', () => {
-                if (originalImageUrl) {
-                    saveImage(originalImageUrl, 'ar-target-photo.jpg');
                 }
             });
 

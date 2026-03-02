@@ -20,7 +20,7 @@
             left: 20px;
             right: 20px;
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
         }
         .btn {
@@ -33,6 +33,10 @@
             cursor: pointer;
             flex-shrink: 0;
         }
+        .btn-toggle {
+            padding: 10px 15px;
+            font-size: 12px;
+        }
         .status {
             position: fixed;
             bottom: 40px;
@@ -40,27 +44,33 @@
             transform: translateX(-50%);
             background: rgba(0, 0, 0, 0.7);
             color: white;
-            padding: 12px 30px;
-            border-radius: 24px;
-            font-size: 15px;
+            padding: 10px 24px;
+            border-radius: 20px;
+            font-size: 14px;
             text-align: center;
             z-index: 1000;
         }
         .marker-info {
             position: fixed;
-            bottom: 100px;
+            bottom: 90px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(255, 255, 255, 0.95);
-            padding: 15px 20px;
-            border-radius: 15px;
+            padding: 12px 16px;
+            border-radius: 12px;
             text-align: center;
-            max-width: 90%;
+            max-width: 85%;
             z-index: 1000;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        .marker-info.hidden {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+            pointer-events: none;
         }
         .marker-info p {
-            margin: 5px 0;
-            font-size: 13px;
+            margin: 4px 0;
+            font-size: 12px;
             color: #333;
         }
         .marker-info a {
@@ -94,6 +104,7 @@
 <body>
     <div class="ui-overlay header">
         <button class="btn" id="backBtn">← 返回</button>
+        <button class="btn btn-toggle" id="toggleHintBtn">💡 提示</button>
     </div>
 
     <a-scene
@@ -119,10 +130,8 @@
     </a-scene>
 
     <div class="marker-info" id="markerInfo">
-        <p>🎯 获取Hiro标记的方法：</p>
-        <p>1. 用电脑浏览器访问：<a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg" target="_blank">Hiro标记图片</a></p>
-        <p>2. 或搜索"AR.js Hiro marker"找到示例图片</p>
-        <p>3. 用另一台设备显示标记，然后扫描</p>
+        <p>🎯 扫描Hiro标记即可显示AR形象</p>
+        <p><a href="https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg" target="_blank">获取Hiro标记</a></p>
     </div>
 
     <div class="status" id="status">🔍 扫描中...</div>
@@ -132,8 +141,10 @@
     <script>
         const EXAMPLE_LEAF_IMG = 'https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/leaf.png';
 
+        let hintsVisible = true;
         const elements = {
             backBtn: document.getElementById('backBtn'),
+            toggleHintBtn: document.getElementById('toggleHintBtn'),
             status: document.getElementById('status'),
             markerInfo: document.getElementById('markerInfo'),
             toast: document.getElementById('toast')
@@ -149,6 +160,17 @@
 
         function goBack() {
             window.location.href = 'index.html';
+        }
+
+        function toggleHints() {
+            hintsVisible = !hintsVisible;
+            if (hintsVisible) {
+                elements.markerInfo.classList.remove('hidden');
+                elements.toggleHintBtn.textContent = '💡 提示';
+            } else {
+                elements.markerInfo.classList.add('hidden');
+                elements.toggleHintBtn.textContent = '👁️ 显示';
+            }
         }
 
         function applySettings() {
@@ -167,6 +189,7 @@
 
         function init() {
             elements.backBtn.addEventListener('click', goBack);
+            elements.toggleHintBtn.addEventListener('click', toggleHints);
 
             applySettings();
         }
