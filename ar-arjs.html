@@ -100,6 +100,59 @@
             20%, 80% { opacity: 1; }
         }
     </style>
+    <script>
+        AFRAME.registerComponent('billboard', {
+            tick: function() {
+                const sceneEl = this.el.sceneEl;
+                if (!sceneEl.camera) return;
+                
+                const camera = sceneEl.camera.el;
+                const cameraPos = camera.object3D.getWorldPosition(new THREE.Vector3());
+                const thisPos = this.el.object3D.getWorldPosition(new THREE.Vector3());
+                
+                this.el.object3D.lookAt(cameraPos.x, thisPos.y, cameraPos.z);
+            }
+        });
+
+        AFRAME.registerComponent('grass-sway', {
+            schema: {
+                speed: {type: 'number', default: 1},
+                amount: {type: 'number', default: 0.1}
+            },
+            init: function() {
+                this.initialRotation = this.el.object3D.rotation.x;
+                this.offset = Math.random() * Math.PI * 2;
+            },
+            tick: function(time, timeDelta) {
+                const sway = Math.sin(time * 0.001 * this.data.speed + this.offset) * this.data.amount;
+                this.el.object3D.rotation.x = this.initialRotation + sway;
+            }
+        });
+
+        AFRAME.registerComponent('float', {
+            schema: {
+                height: {type: 'number', default: 0.2},
+                speed: {type: 'number', default: 1}
+            },
+            init: function() {
+                this.initialY = this.el.object3D.position.y;
+                this.offset = Math.random() * Math.PI * 2;
+            },
+            tick: function(time, timeDelta) {
+                const float = Math.sin(time * 0.001 * this.data.speed + this.offset) * this.data.height;
+                this.el.object3D.position.y = this.initialY + float;
+            }
+        });
+
+        AFRAME.registerComponent('rotate-slow', {
+            schema: {
+                speed: {type: 'number', default: 360}
+            },
+            tick: function(time, timeDelta) {
+                this.el.object3D.rotation.y += (this.data.speed / 1000) * timeDelta * THREE.Math.DEG2RAD;
+            }
+        });
+    </script>
 </head>
 <body>
     <div class="ui-overlay header">
@@ -111,7 +164,8 @@
         arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false"
-        shadow="type: basic;"
+        shadow="type: pcfsoft;"
+        renderer="antialias: true; logarithmicDepthBuffer: true;"
     >
         <a-assets>
             <img id="cartoon-img" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/leaf.png" crossorigin="anonymous" />
@@ -119,61 +173,134 @@
 
         <a-marker preset="hiro">
             <a-entity id="scene-group">
-                <a-entity position="0 0 0">
-                    <a-entity id="ground" position="0 0.01 0" rotation="-90 0 0">
-                        <a-circle 
-                            radius="2" 
-                            segments="32"
-                            color="#4CAF50"
-                            material="side: double; shader: flat;"
-                        ></a-circle>
-                        <a-torus 
-                            radius="2" 
-                            radius-tubular="0.02" 
-                            segments-radial="8" 
-                            color="#2E7D32"
-                            material="side: double;"
-                            rotation="90 0 0"
-                        ></a-torus>
-                    </a-entity>
+                <a-entity id="ground-platform" position="0 0 0">
+                    <a-cylinder 
+                        position="0 0.02 0" 
+                        radius="1.8" 
+                        height="0.05" 
+                        color="#388E3C"
+                        segments-radial="32"
+                        segments-height="1"
+                        shadow="receive: true;"
+                    ></a-cylinder>
+                    
+                    <a-torus 
+                        position="0 0.05 0" 
+                        radius="1.8" 
+                        radius-tubular="0.03" 
+                        segments-radial="64"
+                        segments-tubular="8"
+                        color="#1B5E20"
+                        shadow="cast: true; receive: true;"
+                    ></a-torus>
 
-                    <a-entity id="grass-container"></a-entity>
+                    <a-torus 
+                        position="0 0.05 0" 
+                        radius="1.2" 
+                        radius-tubular="0.015" 
+                        segments-radial="48"
+                        color="#43A047"
+                        shadow="cast: true;"
+                    ></a-torus>
 
-                    <a-entity id="flowers-container"></a-entity>
+                    <a-torus 
+                        position="0 0.05 0" 
+                        radius="0.6" 
+                        radius-tubular="0.01" 
+                        segments-radial="32"
+                        color="#66BB6A"
+                        shadow="cast: true;"
+                    ></a-torus>
+                </a-entity>
 
-                    <a-entity id="pet-container" position="0 0.5 0">
-                        <a-box 
-                            id="pet-shadow"
-                            position="0 -0.45 0"
-                            rotation="-90 0 0"
-                            width="0.6"
-                            height="0.6"
+                <a-entity id="grass-patch-container"></a-entity>
+
+                <a-entity id="flower-group"></a-entity>
+
+                <a-entity id="tree-container"></a-entity>
+
+                <a-entity id="decoration-container"></a-entity>
+
+                <a-entity id="pet-platform" position="0 0.05 0">
+                    <a-cylinder 
+                        position="0 0.05 0"
+                        radius="0.5"
+                        height="0.1"
+                        color="#8D6E63"
+                        segments-radial="24"
+                        shadow="cast: true; receive: true;"
+                    ></a-cylinder>
+                    
+                    <a-torus 
+                        position="0 0.1 0"
+                        radius="0.5"
+                        radius-tubular="0.02"
+                        color="#5D4037"
+                        shadow="cast: true;"
+                    ></a-torus>
+
+                    <a-entity id="pet-container" position="0 0.6 0" billboard>
+                        <a-cylinder 
+                            position="0 -0.55 0"
+                            radius="0.45"
+                            height="0.02"
                             color="#000"
-                            material="opacity: 0.2; transparent: true;"
-                        ></a-box>
+                            rotation="-90 0 0"
+                            material="opacity: 0.3; transparent: true;"
+                        ></a-cylinder>
+                        
                         <a-image
                             id="cartoon-image"
                             src="#cartoon-img"
                             position="0 0 0"
-                            rotation="0 0 0"
-                            width="1"
-                            height="1"
+                            width="0.9"
+                            height="0.9"
                             material="transparent: true; alphaTest: 0.5;"
                         ></a-image>
+
+                        <a-entity id="pet-glow">
+                            <a-ring 
+                                position="0 -0.3 0"
+                                radius-inner="0.4"
+                                radius-outer="0.6"
+                                color="#FFD700"
+                                rotation="-90 0 0"
+                                material="opacity: 0.4; transparent: true;"
+                                rotate-slow="speed: 20;"
+                            ></a-ring>
+                            <a-ring 
+                                position="0 -0.3 0"
+                                radius-inner="0.3"
+                                radius-outer="0.35"
+                                color="#FFA500"
+                                rotation="-90 0 0"
+                                material="opacity: 0.6; transparent: true;"
+                                rotate-slow="speed: -30;"
+                            ></a-ring>
+                        </a-entity>
+
+                        <a-entity id="star-particles"></a-entity>
                     </a-entity>
 
-                    <a-entity id="particles-container"></a-entity>
-
-                    <a-entity id="decorations-container"></a-entity>
+                    <a-entity id="floaters-container"></a-entity>
                 </a-entity>
 
-                <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+                <a-light type="ambient" color="#ffffff" intensity="0.5"></a-light>
+                <a-light 
+                    type="point" 
+                    color="#FFE082" 
+                    intensity="1.2" 
+                    position="0 2 1"
+                    distance="5"
+                    decay="2"
+                    shadow="cast: true; bias: -0.001;"
+                ></a-light>
                 <a-light 
                     type="directional" 
-                    color="#ffffff" 
-                    intensity="0.8" 
-                    position="5 10 7"
-                    castShadow="true"
+                    color="#E3F2FD" 
+                    intensity="0.6" 
+                    position="-2 3 2"
+                    shadow="cast: true; shadowMapWidth: 2048; shadowMapHeight: 2048;"
                 ></a-light>
             </a-entity>
         </a-marker>
@@ -225,263 +352,334 @@
             }
         }
 
-        function createGrassBlade(x, z, height, rotation) {
-            const grass = document.createElement('a-cone');
-            grass.setAttribute('height', height);
-            grass.setAttribute('radius-bottom', '0.02');
-            grass.setAttribute('radius-top', '0.005');
-            grass.setAttribute('color', getRandomGreenColor());
-            grass.setAttribute('segments-height', '3');
-            grass.setAttribute('position', `${x} ${height / 2} ${z}`);
-            grass.setAttribute('rotation', `10 0 ${rotation}`);
-            return grass;
-        }
-
         function getRandomGreenColor() {
-            const greens = ['#4CAF50', '#66BB6A', '#81C784', '#A5D6A7', '#388E3C', '#2E7D32'];
+            const greens = ['#2E7D32', '#388E3C', '#43A047', '#4CAF50', '#66BB6A', '#81C784'];
             return greens[Math.floor(Math.random() * greens.length)];
         }
 
         function getRandomFlowerColor() {
-            const colors = ['#E91E63', '#9C27B0', '#FF5722', '#FFEB3B', '#FF9800', '#F44336'];
+            const colors = ['#E91E63', '#9C27B0', '#673AB7', '#3F51B5', '#2196F3', '#00BCD4', '#009688', '#FF5722', '#FF9800'];
             return colors[Math.floor(Math.random() * colors.length)];
         }
 
-        function createFlower(x, z) {
+        function createGrassPatch(x, z, scale) {
+            const patchGroup = document.createElement('a-entity');
+            patchGroup.setAttribute('position', `${x} 0 ${z}`);
+            patchGroup.setAttribute('scale', `${scale} ${scale} ${scale}`);
+
+            const grassCount = 5 + Math.floor(Math.random() * 5);
+            for (let i = 0; i < grassCount; i++) {
+                const angle = (i / grassCount) * Math.PI * 2;
+                const radius = 0.03 + Math.random() * 0.05;
+                const gx = Math.cos(angle) * radius;
+                const gz = Math.sin(angle) * radius;
+                const height = 0.15 + Math.random() * 0.2;
+
+                const grass = document.createElement('a-cone');
+                grass.setAttribute('height', height);
+                grass.setAttribute('radius-bottom', '0.015');
+                grass.setAttribute('radius-top', '0.003');
+                grass.setAttribute('color', getRandomGreenColor());
+                grass.setAttribute('segments-height', '4');
+                grass.setAttribute('position', `${gx} ${height / 2} ${gz}`);
+                grass.setAttribute('rotation', `${10 + Math.random() * 20} ${Math.random() * 360} 0`);
+                grass.setAttribute('grass-sway', `speed: ${0.8 + Math.random() * 0.4}; amount: ${0.08 + Math.random() * 0.08};`);
+                grass.setAttribute('shadow', 'cast: true;');
+                patchGroup.appendChild(grass);
+            }
+
+            return patchGroup;
+        }
+
+        function createAdvancedFlower(x, z, scale) {
             const flowerGroup = document.createElement('a-entity');
-            flowerGroup.setAttribute('position', `${x} 0 ${z}`);
+            flowerGroup.setAttribute('position', `${x} 0.05 ${z}`);
+            flowerGroup.setAttribute('scale', `${scale} ${scale} ${scale}`);
 
             const stem = document.createElement('a-cylinder');
-            stem.setAttribute('height', '0.3');
-            stem.setAttribute('radius', '0.015');
-            stem.setAttribute('color', '#4CAF50');
-            stem.setAttribute('position', '0 0.15 0');
+            stem.setAttribute('height', '0.4');
+            stem.setAttribute('radius', '0.02');
+            stem.setAttribute('color', '#2E7D32');
+            stem.setAttribute('segments-height', '4');
+            stem.setAttribute('position', '0 0.2 0');
+            stem.setAttribute('shadow', 'cast: true;');
             flowerGroup.appendChild(stem);
 
-            const petalCount = 5 + Math.floor(Math.random() * 3);
+            const leaf1 = document.createElement('a-cone');
+            leaf1.setAttribute('height', '0.15');
+            leaf1.setAttribute('radius-bottom', '0.03');
+            leaf1.setAttribute('radius-top', '0.005');
+            leaf1.setAttribute('color', '#4CAF50');
+            leaf1.setAttribute('position', '-0.05 0.15 0');
+            leaf1.setAttribute('rotation', '0 0 70');
+            flowerGroup.appendChild(leaf1);
+
+            const leaf2 = document.createElement('a-cone');
+            leaf2.setAttribute('height', '0.15');
+            leaf2.setAttribute('radius-bottom', '0.03');
+            leaf2.setAttribute('radius-top', '0.005');
+            leaf2.setAttribute('color', '#4CAF50');
+            leaf2.setAttribute('position', '0.05 0.12 0');
+            leaf2.setAttribute('rotation', '0 0 -70');
+            flowerGroup.appendChild(leaf2);
+
             const flowerColor = getRandomFlowerColor();
+            const petalCount = 7 + Math.floor(Math.random() * 4);
+            
             for (let i = 0; i < petalCount; i++) {
                 const angle = (i / petalCount) * 360;
                 const petal = document.createElement('a-sphere');
-                petal.setAttribute('radius', '0.04');
+                petal.setAttribute('radius', '0.06');
                 petal.setAttribute('color', flowerColor);
-                petal.setAttribute('position', `${Math.cos(angle * Math.PI / 180) * 0.05} 0.32 ${Math.sin(angle * Math.PI / 180) * 0.05}`);
-                petal.setAttribute('scale', '1 0.6 1');
+                petal.setAttribute('position', `${Math.cos(angle * Math.PI / 180) * 0.06} 0.42 ${Math.sin(angle * Math.PI / 180) * 0.06}`);
+                petal.setAttribute('scale', '0.7 1.3 0.5');
+                petal.setAttribute('shadow', 'cast: true;');
                 flowerGroup.appendChild(petal);
             }
 
             const center = document.createElement('a-sphere');
-            center.setAttribute('radius', '0.025');
+            center.setAttribute('radius', '0.04');
             center.setAttribute('color', '#FFEB3B');
-            center.setAttribute('position', '0 0.32 0');
+            center.setAttribute('position', '0 0.42 0');
+            center.setAttribute('shadow', 'cast: true;');
             flowerGroup.appendChild(center);
+
+            const centerCore = document.createElement('a-sphere');
+            centerCore.setAttribute('radius', '0.02');
+            centerCore.setAttribute('color', '#FFC107');
+            centerCore.setAttribute('position', '0 0.44 0');
+            flowerGroup.appendChild(centerCore);
+
+            flowerGroup.setAttribute('float', `height: ${0.03 + Math.random() * 0.03}; speed: ${0.7 + Math.random() * 0.3};`);
 
             return flowerGroup;
         }
 
-        function createButterfly(x, z) {
-            const butterflyGroup = document.createElement('a-entity');
-            butterflyGroup.setAttribute('position', `${x} 0.8 ${z}`);
+        function createSmallTree(x, z, scale) {
+            const treeGroup = document.createElement('a-entity');
+            treeGroup.setAttribute('position', `${x} 0.05 ${z}`);
+            treeGroup.setAttribute('scale', `${scale} ${scale} ${scale}`);
 
-            const body = document.createElement('a-cylinder');
-            body.setAttribute('height', '0.08');
-            body.setAttribute('radius', '0.01');
-            body.setAttribute('color', '#3E2723');
-            body.setAttribute('rotation', '90 0 0');
-            butterflyGroup.appendChild(body);
+            const trunk = document.createElement('a-cylinder');
+            trunk.setAttribute('height', '0.3');
+            trunk.setAttribute('radius', '0.04');
+            trunk.setAttribute('color', '#5D4037');
+            trunk.setAttribute('segments-radial', '8');
+            trunk.setAttribute('position', '0 0.15 0');
+            trunk.setAttribute('shadow', 'cast: true;');
+            treeGroup.appendChild(trunk);
 
-            const wingColors = ['#E91E63', '#9C27B0', '#2196F3', '#00BCD4'];
-            const wingColor = wingColors[Math.floor(Math.random() * wingColors.length)];
+            const foliageColors = ['#2E7D32', '#388E3C', '#43A047'];
+            
+            for (let i = 0; i < 3; i++) {
+                const foliage = document.createElement('a-cone');
+                foliage.setAttribute('height', '0.25');
+                foliage.setAttribute('radius-bottom', '0.2 - ' + i * 0.05);
+                foliage.setAttribute('radius-top', '0.05');
+                foliage.setAttribute('color', foliageColors[i]);
+                foliage.setAttribute('segments-radial', '12');
+                foliage.setAttribute('position', `0 ${0.35 + i * 0.15} 0`);
+                foliage.setAttribute('shadow', 'cast: true;');
+                treeGroup.appendChild(foliage);
+            }
 
-            const leftWing = document.createElement('a-box');
-            leftWing.setAttribute('width', '0.12');
-            leftWing.setAttribute('height', '0.08');
-            leftWing.setAttribute('depth', '0.01');
-            leftWing.setAttribute('color', wingColor);
-            leftWing.setAttribute('position', '-0.08 0 0');
-            leftWing.setAttribute('id', 'left-wing');
-            butterflyGroup.appendChild(leftWing);
+            return treeGroup;
+        }
 
-            const rightWing = document.createElement('a-box');
-            rightWing.setAttribute('width', '0.12');
-            rightWing.setAttribute('height', '0.08');
-            rightWing.setAttribute('depth', '0.01');
-            rightWing.setAttribute('color', wingColor);
-            rightWing.setAttribute('position', '0.08 0 0');
-            rightWing.setAttribute('id', 'right-wing');
-            butterflyGroup.appendChild(rightWing);
+        function createMushroom(x, z, scale) {
+            const mushroomGroup = document.createElement('a-entity');
+            mushroomGroup.setAttribute('position', `${x} 0.05 ${z}`);
+            mushroomGroup.setAttribute('scale', `${scale} ${scale} ${scale}`);
 
-            butterflyGroup.setAttribute('animation', {
+            const stem = document.createElement('a-cylinder');
+            stem.setAttribute('height', '0.2');
+            stem.setAttribute('radius', '0.04');
+            stem.setAttribute('color', '#FFECB3');
+            stem.setAttribute('segments-radial', '8');
+            stem.setAttribute('position', '0 0.1 0');
+            stem.setAttribute('shadow', 'cast: true;');
+            mushroomGroup.appendChild(stem);
+
+            const cap = document.createElement('a-sphere');
+            cap.setAttribute('radius', '0.12');
+            cap.setAttribute('color', '#E53935');
+            cap.setAttribute('segments-width', '16');
+            cap.setAttribute('segments-height', '12');
+            cap.setAttribute('position', '0 0.22 0');
+            cap.setAttribute('scale', '1 0.55 1');
+            cap.setAttribute('shadow', 'cast: true;');
+            mushroomGroup.appendChild(cap);
+
+            const dotPositions = [
+                {x: 0.05, y: 0.26, z: 0.03},
+                {x: -0.04, y: 0.24, z: -0.04},
+                {x: 0, y: 0.28, z: -0.05},
+                {x: -0.06, y: 0.25, z: 0.02}
+            ];
+
+            dotPositions.forEach(pos => {
+                const dot = document.createElement('a-sphere');
+                dot.setAttribute('radius', '0.02');
+                dot.setAttribute('color', '#FFFFFF');
+                dot.setAttribute('position', `${pos.x} ${pos.y} ${pos.z}`);
+                mushroomGroup.appendChild(dot);
+            });
+
+            return mushroomGroup;
+        }
+
+        function createRock(x, z, scale) {
+            const rockGroup = document.createElement('a-entity');
+            rockGroup.setAttribute('position', `${x} 0.05 ${z}`);
+            rockGroup.setAttribute('scale', `${scale} ${scale} ${scale}`);
+
+            const rock = document.createElement('a-dodecahedron');
+            rock.setAttribute('radius', '0.12');
+            rock.setAttribute('color', '#616161');
+            rock.setAttribute('detail', '0');
+            rock.setAttribute('position', '0 0.08 0');
+            rock.setAttribute('rotation', `${Math.random() * 45} ${Math.random() * 360} ${Math.random() * 45}`);
+            rock.setAttribute('scale', `${0.8 + Math.random() * 0.5} ${0.6 + Math.random() * 0.3} ${0.9 + Math.random() * 0.4}`);
+            rock.setAttribute('shadow', 'cast: true; receive: true;');
+            rockGroup.appendChild(rock);
+
+            return rockGroup;
+        }
+
+        function createFloater(x, z, color, size) {
+            const floater = document.createElement('a-icosahedron');
+            floater.setAttribute('radius', size);
+            floater.setAttribute('color', color);
+            floater.setAttribute('detail', '0');
+            floater.setAttribute('position', `${x} ${0.5 + Math.random() * 0.8} ${z}`);
+            floater.setAttribute('shadow', 'cast: true;');
+            floater.setAttribute('float', `height: ${0.15 + Math.random() * 0.2}; speed: ${0.6 + Math.random() * 0.6};`);
+            floater.setAttribute('rotate-slow', `speed: ${30 + Math.random() * 60};`);
+            floater.setAttribute('material', 'opacity: 0.85; transparent: true;');
+            return floater;
+        }
+
+        function createStarParticle(x, y, z, delay) {
+            const star = document.createElement('a-tetrahedron');
+            star.setAttribute('radius', '0.02');
+            star.setAttribute('color', '#FFD700');
+            star.setAttribute('position', `${x} ${y} ${z}`);
+            star.setAttribute('rotate-slow', 'speed: 180;');
+            star.setAttribute('material', 'opacity: 0.9; transparent: true;');
+            
+            star.setAttribute('animation', {
                 property: 'position',
-                from: `${x} 0.6 ${z}`,
-                to: `${x} 1 ${z}`,
+                from: `${x} ${y} ${z}`,
+                to: `${x} ${y + 0.5} ${z}`,
                 dir: 'alternate',
                 loop: true,
-                dur: 2000 + Math.random() * 1000,
+                dur: 1500 + Math.random() * 1000,
+                delay: delay,
                 easing: 'easeInOutSine'
             });
 
-            return butterflyGroup;
-        }
+            star.setAttribute('animation__opacity', {
+                property: 'material.opacity',
+                from: '0.9',
+                to: '0.3',
+                dir: 'alternate',
+                loop: true,
+                dur: 1000 + Math.random() * 1000,
+                delay: delay
+            });
 
-        function createParticle(x, y, z, color) {
-            const particle = document.createElement('a-sphere');
-            particle.setAttribute('radius', '0.015');
-            particle.setAttribute('color', color);
-            particle.setAttribute('position', `${x} ${y} ${z}`);
-            particle.setAttribute('material', 'transparent: true; opacity: 0.8;');
-            return particle;
-        }
-
-        function createDecoration(x, z, type) {
-            const decoGroup = document.createElement('a-entity');
-            decoGroup.setAttribute('position', `${x} 0 ${z}`);
-
-            if (type === 'mushroom') {
-                const stem = document.createElement('a-cylinder');
-                stem.setAttribute('height', '0.15');
-                stem.setAttribute('radius', '0.03');
-                stem.setAttribute('color', '#FFECB3');
-                stem.setAttribute('position', '0 0.075 0');
-                decoGroup.appendChild(stem);
-
-                const cap = document.createElement('a-sphere');
-                cap.setAttribute('radius', '0.08');
-                cap.setAttribute('color', '#F44336');
-                cap.setAttribute('position', '0 0.18 0');
-                cap.setAttribute('scale', '1 0.6 1');
-                decoGroup.appendChild(cap);
-
-                const dot1 = document.createElement('a-sphere');
-                dot1.setAttribute('radius', '0.02');
-                dot1.setAttribute('color', '#FFFFFF');
-                dot1.setAttribute('position', '0.04 0.2 0.03');
-                decoGroup.appendChild(dot1);
-
-                const dot2 = document.createElement('a-sphere');
-                dot2.setAttribute('radius', '0.015');
-                dot2.setAttribute('color', '#FFFFFF');
-                dot2.setAttribute('position', '-0.03 0.22 -0.02');
-                decoGroup.appendChild(dot2);
-            } else if (type === 'rock') {
-                const rock = document.createElement('a-icosahedron');
-                rock.setAttribute('radius', '0.1');
-                rock.setAttribute('color', '#757575');
-                rock.setAttribute('detail', '1');
-                rock.setAttribute('position', '0 0.05 0');
-                rock.setAttribute('rotation', `${Math.random() * 30} ${Math.random() * 360} ${Math.random() * 30}`);
-                rock.setAttribute('scale', `${0.8 + Math.random() * 0.4} ${0.6 + Math.random() * 0.3} ${0.8 + Math.random() * 0.4}`);
-                decoGroup.appendChild(rock);
-            }
-
-            return decoGroup;
+            return star;
         }
 
         function initScene() {
-            const grassContainer = document.getElementById('grass-container');
-            const flowersContainer = document.getElementById('flowers-container');
-            const particlesContainer = document.getElementById('particles-container');
-            const decorationsContainer = document.getElementById('decorations-container');
+            const grassContainer = document.getElementById('grass-patch-container');
+            const flowerGroup = document.getElementById('flower-group');
+            const treeContainer = document.getElementById('tree-container');
+            const decorationContainer = document.getElementById('decoration-container');
+            const floatersContainer = document.getElementById('floaters-container');
+            const starParticles = document.getElementById('star-particles');
 
-            const grassCount = 80;
-            for (let i = 0; i < grassCount; i++) {
+            const grassPatchCount = 20;
+            for (let i = 0; i < grassPatchCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 0.3 + Math.random() * 1.6;
+                const radius = 0.4 + Math.random() * 1.2;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                const height = 0.15 + Math.random() * 0.2;
-                const rotation = Math.random() * 360;
-                grassContainer.appendChild(createGrassBlade(x, z, height, rotation));
+                const scale = 0.7 + Math.random() * 0.6;
+                grassContainer.appendChild(createGrassPatch(x, z, scale));
             }
 
-            const flowerCount = 12;
+            const flowerCount = 8;
             for (let i = 0; i < flowerCount; i++) {
+                const angle = (i / flowerCount) * Math.PI * 2 + Math.random() * 0.3;
+                const radius = 0.8 + Math.random() * 0.7;
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const scale = 0.8 + Math.random() * 0.5;
+                flowerGroup.appendChild(createAdvancedFlower(x, z, scale));
+            }
+
+            const treeCount = 2;
+            for (let i = 0; i < treeCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 0.5 + Math.random() * 1.4;
+                const radius = 1.3 + Math.random() * 0.3;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                flowersContainer.appendChild(createFlower(x, z));
+                const scale = 0.6 + Math.random() * 0.4;
+                treeContainer.appendChild(createSmallTree(x, z, scale));
             }
 
-            const butterflyCount = 3;
-            for (let i = 0; i < butterflyCount; i++) {
-                const angle = (i / butterflyCount) * Math.PI * 2;
-                const radius = 0.8 + Math.random() * 0.5;
-                const x = Math.cos(angle) * radius;
-                const z = Math.sin(angle) * radius;
-                decorationsContainer.appendChild(createButterfly(x, z));
-            }
-
-            const mushroomCount = 2;
+            const mushroomCount = 3;
             for (let i = 0; i < mushroomCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 0.8 + Math.random() * 0.8;
+                const radius = 0.7 + Math.random() * 0.9;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                decorationsContainer.appendChild(createDecoration(x, z, 'mushroom'));
+                const scale = 0.7 + Math.random() * 0.5;
+                decorationContainer.appendChild(createMushroom(x, z, scale));
             }
 
-            const rockCount = 2;
+            const rockCount = 3;
             for (let i = 0; i < rockCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = 1 + Math.random() * 0.8;
+                const radius = 1 + Math.random() * 0.6;
                 const x = Math.cos(angle) * radius;
                 const z = Math.sin(angle) * radius;
-                decorationsContainer.appendChild(createDecoration(x, z, 'rock'));
+                const scale = 0.6 + Math.random() * 0.5;
+                decorationContainer.appendChild(createRock(x, z, scale));
             }
 
-            const particleColors = ['#FFEB3B', '#E91E63', '#2196F3', '#4CAF50'];
-            for (let i = 0; i < 15; i++) {
+            const floaterColors = ['#E91E63', '#9C27B0', '#2196F3', '#00BCD4', '#4CAF50', '#FF9800'];
+            const floaterCount = 12;
+            for (let i = 0; i < floaterCount; i++) {
                 const angle = Math.random() * Math.PI * 2;
-                const radius = Math.random() * 1.5;
+                const radius = Math.random() * 1.4;
                 const x = Math.cos(angle) * radius;
-                const y = 0.2 + Math.random() * 0.8;
                 const z = Math.sin(angle) * radius;
-                const color = particleColors[Math.floor(Math.random() * particleColors.length)];
-                const particle = createParticle(x, y, z, color);
-                
-                particle.setAttribute('animation', {
-                    property: 'position',
-                    from: `${x} ${y} ${z}`,
-                    to: `${x} ${y + 0.3 + Math.random() * 0.3} ${z}`,
-                    dir: 'alternate',
-                    loop: true,
-                    dur: 1500 + Math.random() * 1500,
-                    delay: Math.random() * 1000,
-                    easing: 'easeInOutSine'
-                });
-                
-                particle.setAttribute('animation__2', {
-                    property: 'material.opacity',
-                    from: '0.8',
-                    to: '0.2',
-                    dir: 'alternate',
-                    loop: true,
-                    dur: 1000 + Math.random() * 1000,
-                    delay: Math.random() * 500
-                });
+                const color = floaterColors[Math.floor(Math.random() * floaterColors.length)];
+                const size = 0.03 + Math.random() * 0.04;
+                floatersContainer.appendChild(createFloater(x, z, color, size));
+            }
 
-                particlesContainer.appendChild(particle);
+            const starCount = 8;
+            for (let i = 0; i < starCount; i++) {
+                const angle = (i / starCount) * Math.PI * 2;
+                const radius = 0.3 + Math.random() * 0.25;
+                const x = Math.cos(angle) * radius;
+                const y = 0.1 + Math.random() * 0.4;
+                const z = Math.sin(angle) * radius;
+                const delay = i * 150;
+                starParticles.appendChild(createStarParticle(x, y, z, delay));
             }
 
             const petContainer = document.getElementById('pet-container');
             petContainer.setAttribute('animation', {
                 property: 'position',
-                from: '0 0.5 0',
-                to: '0 0.6 0',
+                from: '0 0.6 0',
+                to: '0 0.75 0',
                 dir: 'alternate',
                 loop: true,
-                dur: 2000,
-                easing: 'easeInOutSine'
-            });
-
-            petContainer.setAttribute('animation__rotation', {
-                property: 'rotation',
-                from: '0 -10 0',
-                to: '0 10 0',
-                dir: 'alternate',
-                loop: true,
-                dur: 4000,
+                dur: 2500,
                 easing: 'easeInOutSine'
             });
         }
