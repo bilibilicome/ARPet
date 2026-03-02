@@ -129,26 +129,6 @@
             }
         });
 
-        AFRAME.registerComponent('orbit', {
-            schema: {
-                radius: {type: 'number', default: 1},
-                speed: {type: 'number', default: 30},
-                height: {type: 'number', default: 0}
-            },
-            init: function() {
-                this.angle = Math.random() * Math.PI * 2;
-                this.initialY = this.el.object3D.position.y;
-            },
-            tick: function(time, timeDelta) {
-                this.angle += (this.data.speed / 1000) * timeDelta * THREE.Math.DEG2RAD;
-                const x = Math.cos(this.angle) * this.data.radius;
-                const z = Math.sin(this.angle) * this.data.radius;
-                this.el.object3D.position.x = x;
-                this.el.object3D.position.z = z;
-                this.el.object3D.position.y = this.initialY + Math.sin(this.angle * 2) * this.data.height;
-            }
-        });
-
         AFRAME.registerComponent('rotate-slow', {
             schema: {
                 speed: {type: 'number', default: 360}
@@ -176,197 +156,70 @@
             <img id="cartoon-img" src="https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/leaf.png" crossorigin="anonymous" />
         </a-assets>
 
-        <a-marker preset="hiro">
+        <a-marker preset="hiro" id="marker-hiro">
             <a-entity id="scene-group">
-                <a-entity id="earth-container" position="0 0.4 0">
-                    <a-sphere 
-                        id="earth"
-                        radius="0.45"
-                        segments-width="32"
-                        segments-height="24"
-                        color="#4FC3F7"
-                        shadow="cast: true; receive: true;"
-                        rotate-slow="speed: 10;"
-                    >
-                        <a-sphere 
-                            position="0.2 0.15 0.32"
-                            radius="0.12"
-                            color="#81C784"
-                            scale="1 0.6 0.8"
-                        ></a-sphere>
-                        <a-sphere 
-                            position="-0.25 0.1 0.3"
-                            radius="0.1"
-                            color="#66BB6A"
-                            scale="0.9 0.5 0.7"
-                        ></a-sphere>
-                        <a-sphere 
-                            position="0 -0.2 0.35"
-                            radius="0.15"
-                            color="#A5D6A7"
-                            scale="1.1 0.55 0.9"
-                        ></a-sphere>
-                        <a-sphere 
-                            position="0.3 -0.1 0.25"
-                            radius="0.08"
-                            color="#4CAF50"
-                            scale="0.8 0.5 0.6"
-                        ></a-sphere>
-                        <a-sphere 
-                            position="-0.15 0.25 0.28"
-                            radius="0.09"
-                            color="#81C784"
-                            scale="0.85 0.55 0.75"
-                        ></a-sphere>
-                    </a-sphere>
-
-                    <a-torus 
-                        position="0 0 0"
-                        radius="0.55"
-                        radius-tubular="0.008"
-                        segments-radial="64"
-                        color="#FFD700"
-                        material="opacity: 0.6; transparent: true;"
-                        rotation="60 30 0"
-                        rotate-slow="speed: -15;"
-                    ></a-torus>
-
-                    <a-torus 
-                        position="0 0 0"
-                        radius="0.6"
-                        radius-tubular="0.005"
-                        segments-radial="64"
-                        color="#FFA500"
-                        material="opacity: 0.5; transparent: true;"
-                        rotation="45 -20 0"
-                        rotate-slow="speed: 20;"
-                    ></a-torus>
-                </a-entity>
-
-                <a-entity id="pet-platform" position="0 1 0" billboard>
-                    <a-entity id="pet-container">
+                <a-entity id="pet-platform" position="0 0.6 0" billboard>
+                    <a-entity id="pet-container" float="height: 0.05; speed: 1.5;">
                         <a-image
                             id="cartoon-image"
                             src="#cartoon-img"
                             position="0 0 0"
-                            width="0.5"
-                            height="0.5"
+                            width="0.6"
+                            height="0.6"
                             material="transparent: true; alphaTest: 0.5;"
                         ></a-image>
                     </a-entity>
                 </a-entity>
 
-                <a-entity id="decorations-orbit">
-                    <a-entity id="cloud1" orbit="radius: 0.7; speed: 20; height: 0.1;" float="height: 0.05; speed: 1.5;">
-                        <a-sphere position="0 0.9 0" radius="0.06" color="#FFFFFF" material="opacity: 0.9; transparent: true;"></a-sphere>
-                        <a-sphere position="0.05 0.88 0" radius="0.05" color="#FFFFFF" material="opacity: 0.85; transparent: true;"></a-sphere>
-                        <a-sphere position="-0.05 0.87 0" radius="0.045" color="#FFFFFF" material="opacity: 0.85; transparent: true;"></a-sphere>
-                        <a-sphere position="0.03 0.92 0.02" radius="0.04" color="#F5F5F5" material="opacity: 0.9; transparent: true;"></a-sphere>
-                    </a-entity>
+                <a-torus 
+                    position="0 0.6 0"
+                    radius="0.5"
+                    radius-tubular="0.02"
+                    segments-radial="32"
+                    color="#FFD700"
+                    material="opacity: 0.7; transparent: true;"
+                    rotation="-90 0 0"
+                    rotate-slow="speed: 30;"
+                ></a-torus>
 
-                    <a-entity id="cloud2" orbit="radius: 0.75; speed: -25; height: 0.08;" float="height: 0.06; speed: 1.8;">
-                        <a-sphere position="0 0.85 0" radius="0.055" color="#FFFFFF" material="opacity: 0.88; transparent: true;"></a-sphere>
-                        <a-sphere position="0.045 0.83 0" radius="0.045" color="#F5F5F5" material="opacity: 0.85; transparent: true;"></a-sphere>
-                        <a-sphere position="-0.04 0.82 0" radius="0.04" color="#FAFAFA" material="opacity: 0.85; transparent: true;"></a-sphere>
-                    </a-entity>
+                <a-sphere 
+                    position="0 0.2 0"
+                    radius="0.3"
+                    segments-width="16"
+                    segments-height="12"
+                    color="#4FC3F7"
+                    shadow="cast: true; receive: true;"
+                    rotate-slow="speed: 10;"
+                ></a-sphere>
 
-                    <a-entity id="cloud3" orbit="radius: 0.8; speed: 18; height: 0.12;" float="height: 0.04; speed: 1.2;">
-                        <a-sphere position="0 0.95 0" radius="0.05" color="#FFFFFF" material="opacity: 0.9; transparent: true;"></a-sphere>
-                        <a-sphere position="0.04 0.93 0" radius="0.04" color="#F5F5F5" material="opacity: 0.85; transparent: true;"></a-sphere>
-                        <a-sphere position="-0.035 0.92 0" radius="0.035" color="#FAFAFA" material="opacity: 0.85; transparent: true;"></a-sphere>
-                    </a-entity>
+                <a-entity id="cloud1" position="0.3 0.8 0.2" float="height: 0.05; speed: 1.2;">
+                    <a-sphere position="0 0 0" radius="0.06" color="#FFFFFF" material="opacity: 0.9; transparent: true;"></a-sphere>
+                    <a-sphere position="0.04 -0.02 0" radius="0.05" color="#F5F5F5" material="opacity: 0.85; transparent: true;"></a-sphere>
+                    <a-sphere position="-0.04 -0.03 0" radius="0.045" color="#FFFFFF" material="opacity: 0.85; transparent: true;"></a-sphere>
                 </a-entity>
 
-                <a-entity id="stars-container">
-                    <a-entity id="star1" position="0.5 1.2 0.3" float="height: 0.1; speed: 2;" rotate-slow="speed: 120;">
-                        <a-tetrahedron radius="0.035" color="#FFD700" material="metalness: 0.8; roughness: 0.2;"></a-tetrahedron>
-                    </a-entity>
-                    
-                    <a-entity id="star2" position="-0.4 1.1 0.4" float="height: 0.12; speed: 1.8;" rotate-slow="speed: -100;">
-                        <a-tetrahedron radius="0.03" color="#FFA500" material="metalness: 0.7; roughness: 0.3;"></a-tetrahedron>
-                    </a-entity>
-                    
-                    <a-entity id="star3" position="0.3 1.3 -0.35" float="height: 0.08; speed: 2.2;" rotate-slow="speed: 140;">
-                        <a-tetrahedron radius="0.025" color="#FFEB3B" material="metalness: 0.9; roughness: 0.1;"></a-tetrahedron>
-                    </a-entity>
-                    
-                    <a-entity id="star4" position="-0.55 1.05 -0.25" float="height: 0.14; speed: 1.5;" rotate-slow="speed: -80;">
-                        <a-tetrahedron radius="0.032" color="#FFC107" material="metalness: 0.75; roughness: 0.25;"></a-tetrahedron>
-                    </a-entity>
-                    
-                    <a-entity id="star5" position="0 1.4 0.45" float="height: 0.09; speed: 1.9;" rotate-slow="speed: 110;">
-                        <a-tetrahedron radius="0.028" color="#FF9800" material="metalness: 0.85; roughness: 0.15;"></a-tetrahedron>
-                    </a-entity>
+                <a-entity id="cloud2" position="-0.35 0.75 0.25" float="height: 0.06; speed: 1.5;">
+                    <a-sphere position="0 0 0" radius="0.05" color="#FFFFFF" material="opacity: 0.9; transparent: true;"></a-sphere>
+                    <a-sphere position="0.035 -0.015 0" radius="0.04" color="#F5F5F5" material="opacity: 0.85; transparent: true;"></a-sphere>
                 </a-entity>
 
-                <a-entity id="music-notes">
-                    <a-entity id="note1" position="0.6 0.9 0" float="height: 0.15; speed: 1.3;" rotate-slow="speed: 45;">
-                        <a-box position="0 0 0" width="0.015" height="0.06" depth="0.01" color="#E91E63" shadow="cast: true;"></a-box>
-                        <a-sphere position="0.02 -0.03 0" radius="0.02" color="#E91E63" rotation="0 0 -30" shadow="cast: true;"></a-sphere>
-                    </a-entity>
-                    
-                    <a-entity id="note2" position="-0.5 1.0 0.2" float="height: 0.12; speed: 1.6;" rotate-slow="speed: -50;">
-                        <a-box position="0 0 0" width="0.015" height="0.055" depth="0.01" color="#9C27B0" shadow="cast: true;"></a-box>
-                        <a-sphere position="-0.02 -0.027 0" radius="0.018" color="#9C27B0" rotation="0 0 30" shadow="cast: true;"></a-sphere>
-                    </a-entity>
-                    
-                    <a-entity id="note3" position="0.4 1.15 -0.3" float="height: 0.18; speed: 1.1;" rotate-slow="speed: 60;">
-                        <a-box position="0 0 0" width="0.015" height="0.065" depth="0.01" color="#673AB7" shadow="cast: true;"></a-box>
-                        <a-sphere position="0.022 -0.032 0" radius="0.022" color="#673AB7" rotation="0 0 -25" shadow="cast: true;"></a-sphere>
-                    </a-entity>
+                <a-entity id="star1" position="0.4 0.9 0.3" float="height: 0.08; speed: 2;" rotate-slow="speed: 120;">
+                    <a-tetrahedron radius="0.03" color="#FFD700" material="metalness: 0.8; roughness: 0.2;"></a-tetrahedron>
                 </a-entity>
 
-                <a-entity id="butterflies">
-                    <a-entity id="butterfly1" orbit="radius: 0.65; speed: 35; height: 0.2;" float="height: 0.08; speed: 2.5;">
-                        <a-box position="0 0 0" width="0.01" height="0.05" depth="0.01" color="#3E2723" rotation="90 0 0"></a-box>
-                        <a-box position="-0.04 0 0" width="0.06" height="0.04" depth="0.005" color="#E91E63" material="opacity: 0.8; transparent: true;"></a-box>
-                        <a-box position="0.04 0 0" width="0.06" height="0.04" depth="0.005" color="#E91E63" material="opacity: 0.8; transparent: true;"></a-box>
-                    </a-entity>
-                    
-                    <a-entity id="butterfly2" orbit="radius: 0.7; speed: -28; height: 0.15;" float="height: 0.1; speed: 2.2;">
-                        <a-box position="0 0 0" width="0.008" height="0.045" depth="0.008" color="#4E342E" rotation="90 0 0"></a-box>
-                        <a-box position="-0.035 0 0" width="0.055" height="0.035" depth="0.005" color="#2196F3" material="opacity: 0.85; transparent: true;"></a-box>
-                        <a-box position="0.035 0 0" width="0.055" height="0.035" depth="0.005" color="#2196F3" material="opacity: 0.85; transparent: true;"></a-box>
-                    </a-entity>
-                </a-entity>
-
-                <a-entity id="base-glow">
-                    <a-ring 
-                        position="0 0.02 0"
-                        radius-inner="0.7"
-                        radius-outer="0.9"
-                        rotation="-90 0 0"
-                        color="#4FC3F7"
-                        material="opacity: 0.3; transparent: true;"
-                        rotate-slow="speed: 12;"
-                    ></a-ring>
-                    <a-ring 
-                        position="0 0.03 0"
-                        radius-inner="0.5"
-                        radius-outer="0.65"
-                        rotation="-90 0 0"
-                        color="#81D4FA"
-                        material="opacity: 0.4; transparent: true;"
-                        rotate-slow="speed: -18;"
-                    ></a-ring>
+                <a-entity id="star2" position="-0.4 0.85 0.2" float="height: 0.07; speed: 1.8;" rotate-slow="speed: -100;">
+                    <a-tetrahedron radius="0.025" color="#FFA500" material="metalness: 0.7; roughness: 0.3;"></a-tetrahedron>
                 </a-entity>
 
                 <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
                 <a-light 
                     type="point" 
                     color="#FFE082" 
-                    intensity="1.5" 
-                    position="0 2 1"
-                    distance="4"
+                    intensity="1.2" 
+                    position="0 1.5 0.5"
+                    distance="3"
                     decay="2"
                     shadow="cast: true; bias: -0.001;"
-                ></a-light>
-                <a-light 
-                    type="directional" 
-                    color="#E3F2FD" 
-                    intensity="0.7" 
-                    position="-2 3 2"
-                    shadow="cast: true; shadowMapWidth: 2048; shadowMapHeight: 2048;"
                 ></a-light>
             </a-entity>
         </a-marker>
@@ -387,6 +240,7 @@
         const EXAMPLE_LEAF_IMG = 'https://cdn.jsdelivr.net/gh/hiukim/mind-ar-js@1.2.5/examples/image-tracking/assets/card-example/leaf.png';
 
         let hintsVisible = true;
+        let markerFound = false;
         const elements = {
             backBtn: document.getElementById('backBtn'),
             toggleHintBtn: document.getElementById('toggleHintBtn'),
@@ -418,6 +272,16 @@
             }
         }
 
+        function updateStatus(found) {
+            if (found) {
+                elements.status.textContent = '✅ 检测到标记';
+                elements.status.style.background = 'rgba(76, 175, 80, 0.8)';
+            } else {
+                elements.status.textContent = '🔍 扫描中...';
+                elements.status.style.background = 'rgba(0, 0, 0, 0.7)';
+            }
+        }
+
         function applySettings() {
             let cartoonImgSrc = EXAMPLE_LEAF_IMG;
             try {
@@ -436,6 +300,18 @@
             elements.backBtn.addEventListener('click', goBack);
             elements.toggleHintBtn.addEventListener('click', toggleHints);
             applySettings();
+
+            const marker = document.getElementById('marker-hiro');
+            marker.addEventListener('markerFound', () => {
+                if (!markerFound) {
+                    markerFound = true;
+                    updateStatus(true);
+                }
+            });
+            marker.addEventListener('markerLost', () => {
+                markerFound = false;
+                updateStatus(false);
+            });
         }
 
         if (document.readyState === 'loading') {
