@@ -1,222 +1,159 @@
-# AR宠物卡通项目
+# AR宠物卡通
 
-一个完整的Web AR宠物卡通项目，使用原生HTML+CSS+JavaScript开发，基于MindAR实现图像识别和AR效果，兼容移动端浏览器和微信内置浏览器。包含完整的Java后端服务，支持本地调试。
+一个完整的Web AR宠物卡通项目，使用Vue3 + TypeScript + Vite开发，基于AR.js实现图像识别和AR效果，兼容移动端浏览器和微信内置浏览器。所有功能在前端本地完成，无需后端！
 
-## 项目结构
+## ✨ 功能特性
+
+- 📸 **照片上传** - 支持点击和拖拽上传宠物照片
+- 🎨 **背景移除** - 智能移除照片背景
+- 🐾 **卡通效果** - 将照片转换为卡通风格
+- 🖼️ **矢量化** - 生成SVG矢量卡通形象
+- 🎯 **AR体验** - 基于AR.js的增强现实效果
+- 🌱 **3D场景** - 包含草地、花草、树木等立体元素
+- 📱 **移动端优化** - 完美适配手机和微信浏览器
+
+## 🛠️ 技术栈
+
+- **前端框架**: Vue 3 (Composition API)
+- **类型系统**: TypeScript
+- **构建工具**: Vite
+- **路由管理**: Vue Router
+- **AR引擎**: AR.js + A-Frame
+- **3D渲染**: Three.js
+- **图像处理**: Canvas API
+
+## 📁 项目结构
 
 ```
 ARPet/
-├── index.html              # 首页（上传页面）
-├── ar-mindar.html          # MindAR AR扫描页面
-├── ar-mindar-simple.html   # MindAR简易测试页面
-├── target-generator.html   # MindAR目标生成器
-├── css/
-│   └── style.css           # 样式文件
-├── js/
-│   └── main.js             # 首页逻辑
-├── assets/                 # 静态资源目录
-├── backend/                # Java后端服务
-│   ├── pom.xml
-│   ├── README.md
-│   └── src/main/
-│       ├── java/com/arpet/
-│       └── resources/
-├── MINDAR_SETUP.md         # MindAR配置指南
-└── README.md               # 使用说明文档
+├── src/
+│   ├── composables/
+│   │   └── useImageProcessor.ts    # 图片处理Composable
+│   ├── types/
+│   │   └── index.ts                  # TypeScript类型定义
+│   ├── views/
+│   │   ├── Home.vue                  # 首页（上传处理页面）
+│   │   └── ARView.vue                # AR体验页面
+│   ├── App.vue                       # 根组件
+│   ├── main.ts                       # 入口文件
+│   └── vite-env.d.ts                 # Vite环境类型
+├── index.html                        # HTML入口
+├── vite.config.ts                    # Vite配置
+├── tsconfig.json                     # TypeScript配置
+├── package.json                      # 项目依赖
+└── DEPLOY.md                         # 部署指南
 ```
 
-## 功能说明
+## 🚀 快速开始
 
-### 前端
-- **首页 (index.html)**: 支持点击上传和拖拽上传宠物照片，调用后端接口生成卡通形象，展示对比图
-- **MindAR AR扫描页 (ar-mindar.html)**: 基于MindAR的AR体验，摄像头权限管理、图像识别、2D内容渲染、模型交互控制
-- **MindAR简易测试页 (ar-mindar-simple.html)**: 开箱即用的MindAR测试页面，使用官方示例目标
-- **目标生成器 (target-generator.html)**: MindAR目标图像生成工具
+### 1. 安装依赖
 
-### 后端
-- **上传接口**: 接收图片，生成卡通效果，返回targetId
-- **查询接口**: 根据targetId查询卡通资源
-- **本地存储**: 图片存储在本地文件系统
-- **卡通效果**: 使用色彩量化算法生成卡通效果
-
-## 快速开始
-
-### 1. 启动Java后端服务（必需）
-
-后端服务提供图片上传和卡通生成功能，必须先启动。
-
-**方式一：使用IDE启动（推荐WebStorm/IDEA）**
-- 在IDE中打开 `backend` 目录
-- 等待Maven依赖下载完成
-- 找到 `ArPetApplication.java`
-- 右键点击，选择 "Run 'ArPetApplication'"
-
-**方式二：使用Maven命令**
 ```bash
-cd backend
-mvn clean install
-mvn spring-boot:run
+npm install
 ```
 
-后端启动成功后，访问 `http://localhost:8080/api/health` 检查服务状态。
+### 2. 启动开发服务器
 
-详细说明请查看 `backend/README.md`
-
-### 2. 启动前端页面
-
-**使用WebStorm启动**
-- 在WebStorm中打开ARPet项目根目录
-- 右键点击 `index.html`
-- 选择 "Open in Browser" 或 "Run 'index.html'"
-- 或使用快捷键 `Alt+Shift+F10` 然后选择浏览器
-
-**其他方式**
-- Live Server（VS Code扩展）
-- Python HTTP服务器
-- Node.js http-server
-
-## 本地调试步骤
-
-1. **使用WebStorm启动**
-   - 在WebStorm中打开ARPet项目
-   - 右键点击 `index.html` 文件
-   - 选择 "Open in Browser" 或 "Run 'index.html'"
-   - 或使用快捷键 `Alt+Shift+F10` 然后选择浏览器
-   - WebStorm会自动启动本地服务器，默认地址类似 `http://localhost:63342/ARPet/index.html`
-
-2. **访问项目**
-   - 确保后端服务已启动（端口8080）
-   - 在浏览器中打开对应的前端地址
-   - 移动端调试建议使用内网穿透工具（如ngrok）
-
-## 快速体验AR
-
-**无需任何配置，立即体验！**
-
-1. 打开 `ar-mindar-simple.html`
-2. 页面会显示一张示例目标图片
-3. 用另一台设备打开该图片，或打印出来
-4. 将摄像头对准目标图片
-5. 🎉 看到AR效果了！
-
-## 配置项替换说明
-
-### 1. 后端接口配置
-
-在 `js/main.js` 中修改：
-
-```javascript
-const CONFIG = {
-    UPLOAD_API: 'http://localhost:8080/api/upload',  // 替换为实际上传接口
-    QUERY_API: 'http://localhost:8080/api/query',    // 替换为实际查询接口
-};
+```bash
+npm run dev
 ```
 
-### 2. MindAR配置（开箱即用）
+### 3. 访问应用
 
-**详细配置步骤请查看：[MINDAR_SETUP.md](./MINDAR_SETUP.md)**
+- **电脑访问**: http://localhost:5173/
+- **手机访问**: http://你的电脑IP:5173/（需要同一WiFi）
 
-MindAR是一个开源免费的Web AR引擎，无需注册账号，直接使用！
+## 📱 使用说明
 
-使用自定义目标：
-1. 访问官方编译器：https://hiukim.github.io/mind-ar-js-doc/tools/compile/
-2. 上传你的目标图像
-3. 下载生成的 `.mind` 文件
-4. 修改 `ar-mindar.html` 中的目标文件路径
+### 完整流程
 
-### 3. 后端接口规范
+1. **上传照片** - 点击或拖拽上传宠物照片
+2. **移除背景** - 自动移除照片背景
+3. **卡通化** - 生成卡通风格效果
+4. **矢量化** - 转换为SVG矢量格式
+5. **开始AR** - 进入AR体验页面
 
-#### 上传接口
-- **URL**: `/api/upload`
-- **Method**: `POST`
-- **Content-Type**: `multipart/form-data`
-- **参数**: `file` (图片文件)
-- **响应**:
-  ```json
-  {
-    "code": 200,
-    "data": {
-      "targetId": "target_123456",
-      "cartoonUrl": "https://example.com/cartoon.png",
-      "resourceType": "image"
-    }
-  }
-  ```
+### AR使用
 
-#### 查询接口
-- **URL**: `/api/query`
-- **Method**: `POST`
-- **Content-Type**: `application/json`
-- **参数**:
-  ```json
-  { "targetId": "target_123456" }
-  ```
-- **响应**:
-  ```json
-  {
-    "code": 200,
-    "data": {
-      "cartoonUrl": "https://example.com/cartoon.png",
-      "resourceType": "image"
-    }
-  }
-  ```
+1. 下载并打印Hiro标记: https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg
+2. 将摄像头对准Hiro标记
+3. 观看3D场景和卡通形象出现！
 
-## 上线部署要求
+## 🎯 Hiro标记
 
-### 1. HTTPS要求
-- 生产环境必须使用HTTPS
-- 摄像头权限在HTTPS环境下才能正常工作
+AR.js使用Hiro标记进行图像识别：
 
-### 2. 服务器配置
-- Nginx/Apache配置正确的MIME类型
-- 确保支持跨域请求（CORS）
-- 配置适当的缓存策略
+- **标记下载**: https://jeromeetienne.github.io/AR.js/data/images/HIRO.jpg
+- **使用方法**: 打印标记或在另一台设备上显示
+- **识别效果**: 将摄像头对准标记即可看到AR效果
 
-### 3. 微信内置浏览器
-- 确保在微信公众平台配置了JS接口安全域名
-- 测试摄像头权限在微信中的表现
+## 📦 构建部署
 
-## 兼容性注意事项
+### 开发模式
 
-### 浏览器支持
+```bash
+npm run dev
+```
+
+### 生产构建
+
+```bash
+npm run build
+```
+
+### 预览构建结果
+
+```bash
+npm run preview
+```
+
+详细部署说明请查看 [DEPLOY.md](./DEPLOY.md)
+
+## 🔧 配置说明
+
+### Vite配置
+
+修改 `vite.config.ts` 可以调整：
+- 开发服务器端口
+- 主机地址（默认 `0.0.0.0` 允许局域网访问）
+- 代理设置等
+
+### 类型声明
+
+TypeScript类型定义在 `src/types/index.ts` 中。
+
+## 📱 浏览器兼容性
+
 - ✅ iOS Safari 11+
 - ✅ Android Chrome 70+
 - ✅ 微信内置浏览器
 - ✅ 移动端QQ浏览器
-- ❌ 不支持部分老旧浏览器
 
-### 移动端适配
-- 页面禁止缩放（已配置viewport）
-- 触摸事件优化
-- 全屏摄像头显示
+## ⚠️ 注意事项
 
-### 性能优化
-- 页面卸载时自动清理资源
-- 模型加载错误降级处理
+1. **HTTPS要求**: 生产环境必须使用HTTPS（摄像头权限需要）
+2. **摄像头权限**: 首次使用需要授权摄像头访问
+3. **光线条件**: AR识别需要充足的光线
+4. **标记质量**: 确保Hiro标记清晰可见
 
-## 常见问题
+## ❓ 常见问题
 
 ### Q: 摄像头无法启动？
-A: 确保使用HTTPS协议（localhost除外），检查浏览器权限设置
+A: 确保使用HTTPS协议（localhost除外），检查浏览器权限设置。
 
-### Q: 目标无法识别？
-A: 确保图像质量足够高，光线充足，避免角度过大
+### Q: 手机无法访问？
+A: 确保手机和电脑在同一WiFi，使用电脑的局域网IP访问。
 
-### Q: 微信中无法使用？
-A: 确认已配置JS接口安全域名，检查微信版本兼容性
+### Q: AR识别不灵敏？
+A: 确保光线充足，标记清晰，摄像头正对标记。
 
-### Q: 如何使用自定义目标图片？
-A: 访问MindAR官方编译器生成.mind文件，修改ar-mindar.html中的路径
+### Q: 如何部署到生产环境？
+A: 查看 [DEPLOY.md](./DEPLOY.md) 了解详细部署步骤。
 
-## 技术栈
-
-- **前端**: 原生HTML5, CSS3, ES6+ JavaScript
-- **AR引擎**: MindAR (开源免费)
-- **3D/AR框架**: A-Frame
-- **后端**: Java Spring Boot
-- **零框架依赖**: 可直接在浏览器运行
-
-## 许可证
+## 📄 许可证
 
 MIT License
+
+## 🤝 贡献
+
+欢迎提交Issue和Pull Request！

@@ -1,0 +1,23 @@
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build files
+target/
+dist/
+build/
+
+# Backend files (暂时不提交，保留在本地)
+backend/
+
+# Local files
+*.log
+*.tmp

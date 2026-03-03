@@ -1,0 +1,39 @@
+{
+  "groups": [
+    {
+      "name": "arpet",
+      "type": "com.arpet.config.ArPetConfig",
+      "sourceType": "com.arpet.config.ArPetConfig"
+    },
+    {
+      "name": "arpet.file",
+      "type": "com.arpet.config.ArPetConfig$FileConfig",
+      "sourceType": "com.arpet.config.ArPetConfig",
+      "sourceMethod": "public com.arpet.config.ArPetConfig.FileConfig getFile() "
+    },
+    {
+      "name": "arpet.server",
+      "type": "com.arpet.config.ArPetConfig$ServerConfig",
+      "sourceType": "com.arpet.config.ArPetConfig",
+      "sourceMethod": "public com.arpet.config.ArPetConfig.ServerConfig getServer() "
+    }
+  ],
+  "properties": [
+    {
+      "name": "arpet.file.cartoon-path",
+      "type": "java.lang.String",
+      "sourceType": "com.arpet.config.ArPetConfig$FileConfig"
+    },
+    {
+      "name": "arpet.file.upload-path",
+      "type": "java.lang.String",
+      "sourceType": "com.arpet.config.ArPetConfig$FileConfig"
+    },
+    {
+      "name": "arpet.server.base-url",
+      "type": "java.lang.String",
+      "sourceType": "com.arpet.config.ArPetConfig$ServerConfig"
+    }
+  ],
+  "hints": []
+}
